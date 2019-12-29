@@ -10,24 +10,43 @@ class DBHandler:
     def init(self):
         self.DB_NAME = "db.sqlite"
         self.conn = sqlite3.connect(self.DB_NAME)
-        self.totalWordsCount = None
+        self.totalWordsCount = self.countTotalWords()
+
+        self.POOL   = "pool"
+        self.WORDS  = "dict"
+        self.LEARNT = "passed"
+
+    def createTables(self):
+        stmt = "CREATE TABLE IF NOT EXISTS pool (id, INT, count, INT)"
+        self.conn.execute(stmt)
+        stmt = "CREATE TABLE IF NOT EXISTS passed (id, INT)"
+        self.conn.execute(stmt)
+        stmt = "CREATE TABLE IF NOT EXISTS dict (id, INT, kanji, TEXT, furi, TEXT, trans, TEXT)"
+        self.conn.execute(stmt)
+
+        self.conn.commit()
+
+    def countTotalWords(self):
+        stmt = "SELECT COUNT(*) FROM dict"
+        res = self.conn.execute(stmt).fetchone()
+        return res[0]
 
     def addDictionaryRow(self, uniqueId, kanji, furi, trans):
         stmt = "INSERT INTO dict (id, kanji, furi, trans) VALUES (?, ?, ?, ?)"
         self.conn.execute(stmt, (uniqueId, kanji, furi, trans))
         self.conn.commit()
 
-    def getPassedWords(self):
+    def getPassedWordsId(self):
         stmt = "SELECT * FROM passed"
         return self.conn.execute(stmt).fetchall()
 
     def chooseNRandomWords(self, count):
         lst = []
-        passedWords = self.getPassedWords()
+        passedWordsId = self.getPassedWordsId()
 
         for i in range(count):
             x = random.randint(1, self.totalWordsCount)
-            while not (x in passedWords or x in lst):
+            while not (x in passedWordsId or x in lst):
                 x = random.randint(1, self.totalWordsCount)
             lst.append(x)
 
