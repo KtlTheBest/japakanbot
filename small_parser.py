@@ -1,7 +1,7 @@
 import os
 
 try:
-    os.mkdir(os.getcwd() + os.path.sep + "tmp2")
+    os.mkdir(os.getcwd() + os.path.sep + "tmp")
 except:
     pass
 
