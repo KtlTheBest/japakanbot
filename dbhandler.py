@@ -19,6 +19,8 @@ class DBHandler:
         self.WORDS  = "dict"
         self.LEARNT = "passed"
 
+        self.createTables()
+
     def dropTables(self):
         stmt = """
         DROP TABLE IF EXISTS pool;
