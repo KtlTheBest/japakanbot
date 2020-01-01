@@ -1,5 +1,5 @@
 import logging
-import sqlite
+import sqlite3
 import os
 import random
 
@@ -16,14 +16,31 @@ class DBHandler:
         self.WORDS  = "dict"
         self.LEARNT = "passed"
 
-    def createTables(self):
-        stmt = "CREATE TABLE IF NOT EXISTS pool (id, INT, count, INT)"
-        self.conn.execute(stmt)
-        stmt = "CREATE TABLE IF NOT EXISTS passed (id, INT)"
-        self.conn.execute(stmt)
-        stmt = "CREATE TABLE IF NOT EXISTS dict (id, INT, kanji, TEXT, furi, TEXT, trans, TEXT)"
-        self.conn.execute(stmt)
+        # FOR DEBUG ONLY!!
 
+        self.dropTables()
+        self.createTables()
+
+        # DON'T FORGET TO REMOVE!!
+
+    def dropTables(self):
+        stmt = """
+        DROP TABLE IF EXISTS pool;
+        DROP TABLE IF EXISTS passed;
+        DROP TABLE IF EXISTS dict;
+        """
+
+        self.conn.executescript(stmt)
+        self.conn.commit()
+
+    def createTables(self):
+        stmt = """
+        CREATE TABLE IF NOT EXISTS pool (id INT, count INT);
+        CREATE TABLE IF NOT EXISTS passed (id INT);
+        CREATE TABLE IF NOT EXISTS dict (id INTEGER PRIMARY KEY, kanji TEXT, xref TEXT, furi TEXT, trans TEXT);
+        """
+
+        self.conn.executescript(stmt)
         self.conn.commit()
 
     def countTotalWords(self):
@@ -31,9 +48,14 @@ class DBHandler:
         res = self.conn.execute(stmt).fetchone()
         return res[0]
 
-    def addDictionaryRow(self, uniqueId, kanji, furi, trans):
-        stmt = "INSERT INTO dict (id, kanji, furi, trans) VALUES (?, ?, ?, ?)"
-        self.conn.execute(stmt, (uniqueId, kanji, furi, trans))
+    def getDictContents(self):
+        stmt = "SELECT * FROM dict"
+        res = self.conn.execute(stmt).fetchall()
+        return res
+
+    def addDictionaryRow(self, kanji, xref, furi, trans):
+        stmt = "INSERT INTO dict (kanji, xref, furi, trans) VALUES (?, ?, ?, ?)"
+        self.conn.execute(stmt, (kanji, xref, furi, trans))
         self.conn.commit()
 
     def getPassedWordsId(self):
@@ -60,7 +82,7 @@ class DBHandler:
 
     def removeWordsFromPool(self, uniqueIdList):
         stmt = "DELETE FROM pool WHERE id=?"
-        for uniqueId from uniqueIdList:
+        for uniqueId in uniqueIdList:
             self.conn.execute(stmt, (uniqueId, ))
             self.conn.commit()
 
