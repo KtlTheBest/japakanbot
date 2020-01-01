@@ -7,21 +7,17 @@ def exists(path):
     return os.path.exists(path)
 
 class DBHandler:
-    def init(self):
+    def __init__(self):
         self.DB_NAME = "db.sqlite"
         self.conn = sqlite3.connect(self.DB_NAME)
-        self.totalWordsCount = self.countTotalWords()
+        try:
+            self.totalWordsCount = self.countTotalWords()
+        except sqlite3.OperationalError:
+            self.totalWordsCount = 0
 
         self.POOL   = "pool"
         self.WORDS  = "dict"
         self.LEARNT = "passed"
-
-        # FOR DEBUG ONLY!!
-
-        self.dropTables()
-        self.createTables()
-
-        # DON'T FORGET TO REMOVE!!
 
     def dropTables(self):
         stmt = """

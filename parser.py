@@ -29,7 +29,8 @@ def addEntries2DB(kanji, xref, reb, gloss):
                     handler.addDictionaryRow(k, x, r, g)
 
     res = handler.getDictContents()
-    print(res)
+    for row in res:
+        print(row)
 
 def parseFile(f):
     print(f)
@@ -48,7 +49,6 @@ def parseSmallFiles():
     for root, dirs, files in os.walk("tmp"):
         for File in files:
             parseFile(root + os.path.sep + File)
-            break
 
 def populateDatabase():
     if not os.path.exists(os.getcwd() + os.path.sep + "tmp"):
