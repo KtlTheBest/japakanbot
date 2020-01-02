@@ -8,7 +8,7 @@ def exists(path):
 
 class DBHandler:
     def __init__(self):
-        self.DB_NAME = "db.sqlite"
+        self.DB_NAME = "base.db"
         self.conn = sqlite3.connect(self.DB_NAME)
         try:
             self.totalWordsCount = self.countTotalWords()
@@ -19,7 +19,8 @@ class DBHandler:
         self.WORDS  = "dict"
         self.LEARNT = "passed"
 
-        self.createTables()
+        if self.totalWordsCount == 0:
+            self.setupDatabase()
 
     def dropTables(self):
         stmt = """
@@ -35,11 +36,15 @@ class DBHandler:
         stmt = """
         CREATE TABLE IF NOT EXISTS pool (id INT, count INT);
         CREATE TABLE IF NOT EXISTS passed (id INT);
-        CREATE TABLE IF NOT EXISTS dict (id INTEGER PRIMARY KEY, kanji TEXT, xref TEXT, furi TEXT, trans TEXT);
+        CREATE TABLE IF NOT EXISTS dict (id INT, kanji TEXT, xref TEXT, furi TEXT, trans TEXT);
         """
 
         self.conn.executescript(stmt)
         self.conn.commit()
+
+    def setupDatabase(self):
+        self.dropTables()
+        self.createTables()
 
     def countTotalWords(self):
         stmt = "SELECT COUNT(*) FROM dict"
@@ -51,9 +56,9 @@ class DBHandler:
         res = self.conn.execute(stmt).fetchall()
         return res
 
-    def addDictionaryRow(self, kanji, xref, furi, trans):
-        stmt = "INSERT INTO dict (kanji, xref, furi, trans) VALUES (?, ?, ?, ?)"
-        self.conn.execute(stmt, (kanji, xref, furi, trans))
+    def addDictionaryRow(self, uniqueId, kanji, xref, furi, trans):
+        stmt = "INSERT INTO dict (id, kanji, xref, furi, trans) VALUES (?, ?, ?, ?, ?)"
+        self.conn.execute(stmt, (uniqueId, kanji, xref, furi, trans))
         self.conn.commit()
 
     def getPassedWordsId(self):
