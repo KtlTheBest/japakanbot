@@ -28,12 +28,9 @@ def addEntries2DB(uniqueId, kanji, xref, reb, gloss):
                 for g in gloss:
                     handler.addDictionaryRow(uniqueId, k, x, r, g)
 
-    res = handler.getDictContents()
-    for row in res:
-        print(row)
+    print("Added " + str(uniqueId) + " to dictionary")
 
 def parseFile(folder, f):
-    print(folder + os.path.sep + f)
     with open(folder + os.path.sep + f) as File:
         content = File.readlines()
         content = "".join(content)
