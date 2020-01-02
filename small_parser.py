@@ -6,7 +6,6 @@ except:
     pass
 
 FILENAME = "JMdict_e"
-output = "file_"
 cnt = 1
 
 with open(FILENAME) as f:
@@ -21,7 +20,7 @@ with open(FILENAME) as f:
         if count % 2 == 1:
             if openedFile == False:
                 openedFile = True
-                shortFile = open("tmp" + os.path.sep + output + str(cnt), "w")
+                shortFile = open("tmp" + os.path.sep + str(cnt), "w")
 
             shortFile.write(line + "\n")
         else:
