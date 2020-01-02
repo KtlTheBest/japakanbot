@@ -1,3 +1,4 @@
 token
 tmp/
+base.db*
 *.pyc
