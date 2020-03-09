@@ -16,6 +16,7 @@ with open(FILENAME) as f:
         #print(line)
         if line == "<entry>" or line == "</entry>":
             count += 1
+            continue
 
         if count % 2 == 1:
             if openedFile == False:

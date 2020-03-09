@@ -1,6 +1,8 @@
 from telegram.ext import Updater
 import logging
 import os
+import schedule
+from tasks import startQuiz
 
 # My files
 
@@ -33,6 +35,8 @@ def main():
         updater.dispatcher.add_handler(handler)
 
     updater.start_polling()
+
+    schedule.every().day.at("12:00").do(startQuiz)
 
 if __name__ == "__main__":
     main()

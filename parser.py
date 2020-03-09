@@ -6,13 +6,11 @@ import re
 import dbhandler
 
 def grabber(soup, tag):
-    contentRE = re.compile(r'<(?P<tagField>.*?)(\s+?.*?)?>(.+?)</(?P=tagField)>')
     content = soup.find_all(tag)
     res = []
     for item in content:
-        item = str(item)
-        x = contentRE.search(item).group(3)
-        res.append(x.decode('utf-8'))
+        x = item.text
+        res.append(x.encode('unicode-escape'))
 
     if len(res) == 0:
         res.append("")
@@ -28,19 +26,25 @@ def addEntries2DB(uniqueId, kanji, xref, reb, gloss):
                 for g in gloss:
                     handler.addDictionaryRow(uniqueId, k, x, r, g)
 
-    print("Added " + str(uniqueId) + " to dictionary")
 
 def parseFile(folder, f):
+    #print("Writing " + f + " to dictionary")
     with open(folder + os.path.sep + f) as File:
         content = File.readlines()
         content = "".join(content)
-    soup = BeautifulSoup(content, features="xml")
-    kanji = grabber(soup, "keb")
-    xref  = grabber(soup, "xref")
-    reb   = grabber(soup, "reb")
-    gloss = grabber(soup, "gloss")
+        print(content)
 
-    addEntries2DB(int(f), kanji, xref, reb, gloss)
+    try:
+        soup  = BeautifulSoup(content, features="xml")
+        kanji = grabber(soup, "keb")
+        xref  = grabber(soup, "xref")
+        reb   = grabber(soup, "reb")
+        gloss = grabber(soup, "gloss")
+
+        addEntries2DB(int(f), kanji, xref, reb, gloss)
+    except:
+        print("Some error with parsing file {}. Silently passing".format(f))
+        pass
 
 def parseSmallFiles():
     for root, dirs, files in os.walk("tmp"):

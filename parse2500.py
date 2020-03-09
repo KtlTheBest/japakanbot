@@ -18,7 +18,11 @@ def parseKanji(l, k):
     page.encoding = 'shift-jis'
     page_text = page.text
     translateRE = re.compile(r'<h1>(.+?)</h1><font size=4>(.+?)</font>')
-    translation = translateRE.search(page_text).group(2)
+    try:
+        translation = translateRE.search(page_text).group(2)
+    except AttributeError:
+        translation = klink + l
+        pass
     print(translation)
     data.write(k + ',' + translation + '\n')
 
