@@ -51,6 +51,7 @@ def start_task(update, context):
     newFile.write("id,count\n")
     newFile.close()
     logger.debug("Initiated csv file")
+    newFile = open(str(update.message.chat_id) + ".known", "w").close()
     update.message.reply_html(bot_messages.START)
     logger.debug("Sent a bot_messages.START message to {}".format(update.message_chat_id))
     return ConversationHandler.END
@@ -67,6 +68,10 @@ def quiz_task(update, context):
     return askQuestions(update, context)
 
 def askQuestions(update, context):
+    questionNo = context.user_data['n']
+    if questionNo == -1:
+        return ConversationHandler.END
+
     logger.info("Got into askQuestions by request from {}".format(update.message.chat_id))
     questionNo = context.user_data['n']
     if questionNo != 0:
@@ -87,23 +92,38 @@ def askQuestions(update, context):
     k, a, i = getNewQuestion()
     logger.debug("Generated a new question for {}".format(update.message.chat_id))
 
+    with open(str(update.message.chat_id) + ".known", 'a') as f:
+        f.write("{} - {}\n".format(k, a))
+
     update.message.reply_html(bot_messages.NEW_QUESTION.format(k))
     logger.debug("Sent bot_messages.NEW_QUESTION to {}".format(update.message.chat_id))
-    context.user_data['k'] = k
-    context.user_data['a'] = a
-    context.user_data['i'] = i
-    logger.debug("Updated question context for {}".format(update.message.chat_id))
+    context.user_data['n'] = questionNo + 1
+    logger.debug("Updated questionNo context for {} which is now {}".format(update.message.chat_id, questionNo + 1))
 
     if questionNo == 30:
         logger.info("The quiz for {} is finished!".format(update.message.chat_id))
         update.message.reply_html(bot_messages.QUIZ_FINISH)
         logger.debug("Sent bot_messages.QUIZ_FINISH to {}".format(update.message.chat_id))
+        context.user_data['n'] = -1
         return ConversationHandler.END
 
-    context.user_data['n'] = questionNo + 1
-    logger.debug("Updated questionNo context for {} which is now {}".format(update.message.chat_id, questionNo + 1))
+    context.user_data['k'] = k
+    context.user_data['a'] = a
+    context.user_data['i'] = i
+    logger.debug("Updated question context for {}".format(update.message.chat_id))
 
     return bot_states.QUESTIONS
+
+def list_known_task(update, context):
+    logger.info("{} requests known words".format(update.message.chat_id))
+    user_id = str(update.message.chat_id)
+    message = ""
+    with open(user_id + ".known") as f:
+        message = f.read()
+
+    update.message.reply_text(message)
+    return ConversationHandler.END
+    pass
 
 def done(update, context):
     logger.info("Executing done() for {}".format(update.message.chat_id))

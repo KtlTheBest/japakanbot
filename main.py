@@ -7,7 +7,7 @@ import tasks
 
 import bot_states
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def getToken():
@@ -30,6 +30,7 @@ def main():
     start_handler = CommandHandler('start', tasks.start_task)
     help_handler = CommandHandler('help', tasks.help_task)
     quiz_handler = CommandHandler('quiz', tasks.quiz_task)
+    list_known_handler = CommandHandler('list', tasks.list_known_task)
     ask_questions_handler = MessageHandler(Filters.text, tasks.askQuestions)
     logger.info("Initiated all Command Handlders")
 
@@ -47,6 +48,7 @@ def main():
             start_handler,
             help_handler,
             quiz_handler,
+            list_known_handler,
             quiz_conversation_handler
             ]
 
